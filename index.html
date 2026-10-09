@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquidación de Prestaciones Sociales</title>
+<style>
+  :root{
+    --bg:#f3f1ec; --card:#ffffff; --ink:#1d2430; --soft:#5d6573; --mute:#8b919b;
+    --line:#e2ded5; --line2:#eeebe4; --navy:#1f2a3a; --gold:#a8813f; --gold-bg:#f6efe2;
+    --bad:#9b3c3c; --ok:#3f6f55;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:13.5px;-webkit-font-smoothing:antialiased}
+
+  header.top{background:var(--navy);color:#fff;padding:14px 28px;display:flex;align-items:center;gap:16px}
+  header.top .t{font-family:Georgia,"Times New Roman",serif;font-size:17px;letter-spacing:.2px}
+  header.top .s{font-size:11px;color:#aab3c0;letter-spacing:.6px;text-transform:uppercase}
+  header.top .sp{flex:1}
+  header.top .st{font-size:11px;color:#aab3c0;display:flex;align-items:center;gap:7px}
+  header.top .st i{width:7px;height:7px;border-radius:50%;background:#6b7584;display:inline-block}
+  header.top .st i.on{background:#6fbf8f}
+
+  .wrap{display:grid;grid-template-columns:minmax(420px,520px) 1fr;gap:24px;padding:24px 28px 60px;align-items:start}
+  .col-form{display:flex;flex-direction:column;gap:14px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:6px}
+  .card > h2{margin:0;padding:13px 18px;font-size:12px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--navy);border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:10px}
+  .card > h2 .n{font-family:Georgia,serif;color:var(--gold);font-size:13px;letter-spacing:0}
+  .card > h2 .r{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--mute);font-size:11.5px}
+  .card .in{padding:14px 18px 16px}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 12px}
+  .f{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .f.full{grid-column:1/-1}
+  label{font-size:11.5px;color:var(--soft)}
+  input[type=text],input[type=number],input[type=date],select{
+    width:100%;border:1px solid var(--line);background:#fbfaf7;border-radius:4px;padding:8px 10px;font-size:13.5px;color:var(--ink);font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--gold);background:#fff}
+  .note{font-size:11px;color:var(--mute);line-height:1.45;margin-top:8px}
+
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line2);border-radius:4px;margin-top:12px;overflow:hidden}
+  .facts div{padding:8px 10px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+  .facts div:nth-child(3n){border-right:none}
+  .facts div:nth-last-child(-n+3){border-bottom:none}
+  .facts span{display:block;font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+  .facts b{font-size:13px;font-variant-numeric:tabular-nums}
+
+  table.mini{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.mini th{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px;font-weight:600;text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+  table.mini td{padding:4px 6px;border-bottom:1px solid var(--line2)}
+  table.mini td input[type=number]{padding:5px 7px;font-size:12.5px;width:84px}
+  table.mini td.c{text-align:center}
+  table.mini tr.off td{color:var(--mute)}
+  table.mini tfoot td{font-weight:600;border-bottom:none;padding-top:7px}
+
+  .rows .row{display:grid;grid-template-columns:1fr 110px 30px;gap:6px;margin-bottom:6px}
+  .rows .row input{padding:7px 9px;font-size:12.5px}
+  .x{border:1px solid var(--line);background:#fff;color:var(--mute);border-radius:4px;cursor:pointer}
+  .x:hover{color:var(--bad);border-color:var(--bad)}
+  .add{width:100%;border:1px dashed #cfc9bd;background:none;border-radius:4px;padding:7px;color:var(--soft);cursor:pointer;font-size:12px}
+  .add:hover{border-color:var(--gold);color:var(--gold)}
+
+  .hist .it{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2)}
+  .hist .it:last-child{border-bottom:none}
+  .hist .it .who{flex:1;min-width:0}
+  .hist .it .who b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hist .it .who span{font-size:11px;color:var(--mute)}
+  .hist .it .amt{font-variant-numeric:tabular-nums;font-size:12px;color:var(--gold)}
+  .hist .it button{border:1px solid var(--line);background:#fff;border-radius:4px;padding:4px 9px;font-size:11px;cursor:pointer;color:var(--soft)}
+  .hist .it button.del:hover{color:var(--bad);border-color:var(--bad)}
+  .hist .empty{color:var(--mute);font-size:12px}
+
+  /* ---------- Documento ---------- */
+  .col-doc{position:sticky;top:16px}
+  .bar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+  .bar .sp{flex:1}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:4px;font-size:12.5px;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:#c9c2b4}
+  .btn.p{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .viewer{max-height:calc(100vh - 90px);overflow:auto;border-radius:4px}
+  .alerts{margin-bottom:10px;display:flex;flex-direction:column;gap:6px}
+  .alert{background:var(--gold-bg);border:1px solid #e6d5b5;color:#6e5427;border-radius:4px;padding:8px 12px;font-size:12px;line-height:1.45}
+
+  .doc{background:#fff;border:1px solid var(--line);padding:46px 52px 40px;font-family:Georgia,"Times New Roman",serif;color:#1a1a1a}
+  .doc .hd{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:12px}
+  .doc .hd h1{margin:0;font-size:18px;font-weight:700}
+  .doc .hd .rif{font-size:12px;color:#555;margin-top:2px}
+  .doc .hd img{max-height:56px;max-width:180px}
+  .doc h3.tt{text-align:center;font-size:14px;letter-spacing:.5px;text-transform:uppercase;margin:18px 0 18px;font-weight:700}
+  .doc .sans{font-family:-apple-system,"Segoe UI",Arial,sans-serif}
+  .doc table{width:100%;border-collapse:collapse}
+  .doc .meta td{padding:4px 6px;font-size:12px;border-bottom:1px solid #ebe7df;vertical-align:top}
+  .doc .meta td.k{color:#666;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;width:22%}
+  .doc .meta td.v{font-weight:600;width:28%}
+  .doc .sec{font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin:20px 0 0;padding-bottom:5px;border-bottom:2px solid #1a1a1a}
+  .doc .lines th{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.4px;font-weight:600;padding:6px 6px;text-align:right;border-bottom:1px solid #d9d4ca}
+  .doc .lines th.l{text-align:left}
+  .doc .lines td{font-size:12px;padding:6px 6px;border-bottom:1px solid #ebe7df;text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+  .doc .lines td.l{text-align:left}
+  .doc .lines td small{display:block;color:#777;font-size:10px;margin-top:1px}
+  .doc .lines tr.tot td{font-weight:700;border-top:1px solid #1a1a1a;border-bottom:none}
+  .doc .integ{margin-top:14px;font-size:11.5px;border:1px solid #e3ddd1;background:#faf8f3;padding:9px 12px;line-height:1.6}
+  .doc .net{margin-top:18px;border:1px solid #1a1a1a}
+  .doc .net div{display:flex;justify-content:space-between;padding:8px 12px;font-size:12.5px}
+  .doc .net div+div{border-top:1px solid #ebe7df}
+  .doc .net .big{background:#1a1a1a;color:#fff;font-weight:700;font-size:14px}
+  .doc .fin{margin-top:24px;font-size:12px;line-height:1.7;text-align:justify}
+  .doc .fin p{margin:0 0 12px}
+  .doc .sig{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:44px}
+  .doc .sig div{border-top:1px solid #1a1a1a;padding-top:6px;text-align:center;font-size:11.5px}
+  .doc .sig span{display:block;color:#666;font-size:10.5px}
+
+  @media print{
+    body{background:#fff}
+    header.top,.col-form,.bar,.alerts{display:none!important}
+    .wrap{display:block;padding:0}
+    .col-doc{position:static}
+    .viewer{max-height:none;overflow:visible}
+    .doc{border:none;padding:0}
+    @page{size:letter;margin:15mm 14mm}
+  }
+  @media(max-width:1000px){.wrap{grid-template-columns:1fr}.col-doc{position:static}.viewer{max-height:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <div class="t">Liquidación de Prestaciones Sociales</div>
+    <div class="s">Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras</div>
+  </div>
+  <div class="sp"></div>
+  <div class="st"><i id="cloudDot"></i><span id="cloudTxt">Historial en este equipo</span></div>
+</header>
+
+<div class="wrap">
+<!-- ================= FORMULARIO ================= -->
+<div class="col-form">
+
+  <section class="card">
+    <h2><span class="n">1</span> Partes</h2>
+    <div class="in g2">
+      <div class="f full"><label>Entidad de trabajo</label><input id="empresa" type="text" placeholder="Razón social"></div>
+      <div class="f"><label>RIF</label><input id="rif" type="text" placeholder="J-00000000-0"></div>
+      <div class="f"><label>Logo (opcional)</label><input id="logo" type="file" accept="image/*" style="padding:5px;font-size:11.5px"></div>
+      <div class="f full"><label>Trabajador</label><input id="trab" type="text" placeholder="Nombre y apellido"></div>
+      <div class="f"><label>Cédula</label><input id="cedula" type="text" placeholder="V-00.000.000"></div>
+      <div class="f"><label>Cargo</label><input id="cargo" type="text"></div>
+      <div class="f full"><label>Motivo de egreso</label>
+        <select id="motivo">
+          <option>RENUNCIA</option><option>MUTUO ACUERDO</option><option>RETIRO JUSTIFICADO</option>
+          <option>DESPIDO JUSTIFICADO</option><option>DESPIDO INJUSTIFICADO</option><option>CULMINACIÓN DE CONTRATO</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">2</span> Salario, tasa y fechas</h2>
+    <div class="in">
+      <div class="g2">
+        <div class="f"><label>Salario mensual (USD)</label><input id="salUSD" type="number" step="0.01" placeholder="1000.00"></div>
+        <div class="f"><label>Tasa BCV del día (Bs/USD)</label><input id="tasa" type="number" step="0.0001" placeholder="874.7321"></div>
+        <div class="f"><label>Fecha de ingreso</label><input id="ingreso" type="date"></div>
+        <div class="f"><label>Fecha de egreso</label><input id="egreso" type="date"></div>
+        <div class="f"><label>Fecha de la tasa</label><input id="fechaTasa" type="date"></div>
+      </div>
+      <div class="facts">
+        <div><span>Mensual Bs.</span><b id="fx_mesBs">—</b></div>
+        <div><span>Diario USD</span><b id="fx_dUSD">—</b></div>
+        <div><span>Diario Bs.</span><b id="fx_dBs">—</b></div>
+        <div><span>Tiempo de servicio</span><b id="fx_t">—</b></div>
+        <div><span>Períodos completos</span><b id="fx_per">—</b></div>
+        <div><span>Meses año en curso</span><b id="fx_m">—</b></div>
+      </div>
+      <div class="note">El salario diario se trunca a dos decimales (1.000 ÷ 30 = 33,33). El salario en bolívares se calcula aparte con su propio diario, igual que en el modelo de la firma.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">3</span> Vacaciones y bono vacacional <span class="r">año aniversario · salario normal</span></h2>
+    <div class="in">
+      <div class="g3">
+        <div class="f"><label>Días del 1er período</label><input id="baseVac" type="number" step="1" value="15"></div>
+        <div class="f"><label>Tope de días</label><input id="topeVac" type="number" step="1" value="30"></div>
+        <div class="f"><label>Días fracción</label>
+          <select id="fracRule">
+            <option value="ultimo">Días del último período</option>
+            <option value="curso">Días del período en curso</option>
+          </select>
+        </div>
+      </div>
+      <div class="note" style="margin-bottom:8px">Se suma un día por cada período completado. Desmarca los períodos que ya fueron pagados o disfrutados; los marcados se liquidan como vencidos.</div>
+      <table class="mini">
+        <thead><tr><th>Período</th><th>Vacaciones</th><th>Bono vac.</th><th class="c">Vencido</th></tr></thead>
+        <tbody id="perBody"></tbody>
+        <tfoot><tr><td>Total vencido</td><td id="perTotV">0</td><td id="perTotB">0</td><td></td></tr></tfoot>
+      </table>
+      <div class="g2" style="margin-top:12px">
+        <div class="f"><label>Vacaciones fraccionadas (días)</label><input id="fracVac" type="number" step="0.01" placeholder="auto"></div>
+        <div class="f"><label>Bono vac. fraccionado (días)</label><input id="fracBono" type="number" step="0.01" placeholder="auto"></div>
+      </div>
+      <div class="note" id="fracNote"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">4</span> Utilidades / bono de fin de año <span class="r">año calendario · normal + alíc. BV</span></h2>
+    <div class="in">
+      <div class="g2" style="margin-bottom:10px">
+        <div class="f"><label>Días de utilidades por año</label><input id="dUtil" type="number" step="1" value="30"></div>
+      </div>
+      <table class="mini">
+        <thead><tr><th>Año</th><th>Meses</th><th>Días</th><th class="c">Pendiente</th></tr></thead>
+        <tbody id="utBody"></tbody>
+      </table>
+      <div class="note">Base diaria = salario normal diario + alícuota del bono vacacional. Marca solo los años que no se han pagado.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">5</span> Salario integral y prestaciones <span class="r">Art. 142 LOTTT</span></h2>
+    <div class="in">
+      <div class="g2">
+        <div class="f"><label>Alícuota bono vacacional</label>
+          <select id="aliBV"><option value="frac">Días del bono fraccionado</option><option value="ultimo">Días del último período</option></select>
+        </div>
+        <div class="f"><label>Alícuota utilidades</label>
+          <select id="aliU"><option value="anual">Días anuales de utilidades (30)</option><option value="frac">Días fraccionados del año en curso</option></select>
+        </div>
+        <div class="f"><label>Divisor</label>
+          <select id="divisor"><option value="360">360</option><option value="365">365</option></select>
+        </div>
+        <div class="f"><label>Precisión de los cálculos</label>
+          <select id="redondeo"><option value="exacta">Exacta, como el Excel de la firma</option><option value="trunc">Truncar diario y alícuotas a 2 decimales</option><option value="round">Diario truncado, alícuotas redondeadas</option></select>
+        </div>
+        <div class="f full"><label>Días adicionales de antigüedad (Art. 142 lit. b)</label>
+          <select id="diasAdic"><option value="si">Incluir · 2 días por año después del primero, máx. 30</option><option value="no">No incluir</option></select>
+        </div>
+        <div class="f full"><label>Monto de prestaciones a pagar</label>
+          <select id="metPrest">
+            <option value="c">Literal c) · 30 días por año o fracción mayor de 6 meses</option>
+            <option value="mayor">Literal d) · el mayor entre c) y la garantía depositada</option>
+          </select>
+        </div>
+        <div class="f full" id="garWrap"><label>Garantía acumulada según estado de cuenta</label><input id="garantia" type="number" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="note">La garantía de los literales a) y b) se deposita trimestre a trimestre con el salario de cada momento, por eso se toma del estado de cuenta y no se recalcula con el salario actual.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">6</span> Intereses, otras asignaciones y deducciones</h2>
+    <div class="in">
+      <div class="g2">
+        <div class="f"><label>Tasa de interés BCV anual (%)</label><input id="tasaInt" type="number" step="0.01" placeholder="vacío = sin intereses"></div>
+        <div class="f"><label>O intereses según cálculo propio</label><input id="intManual" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="f"><label>Moneda de los montos que cargues a mano</label>
+          <select id="monManual"><option value="usd">Dólares (USD)</option><option value="bs">Bolívares (Bs.)</option></select>
+        </div>
+        <div class="f"><label>Salarios dejados de percibir (días)</label><input id="diasCaidos" type="number" step="1" placeholder="0"></div>
+      </div>
+      <div class="note">Con tasa: prestaciones × tasa × días de servicio ÷ 360. Si cargas un monto propio, ese prevalece.</div>
+
+      <div style="margin-top:14px"><label>Otras asignaciones</label></div>
+      <div class="rows" id="otras" style="margin-top:6px"></div>
+      <button class="add" id="addOtra">Agregar asignación</button>
+
+      <div style="margin-top:14px"><label>Deducciones</label></div>
+      <div class="rows" id="deds" style="margin-top:6px"></div>
+      <button class="add" id="addDed">Agregar deducción o anticipo</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">7</span> Historial</h2>
+    <div class="in hist" id="hist"></div>
+  </section>
+</div>
+
+<!-- ================= DOCUMENTO ================= -->
+<div class="col-doc">
+  <div class="bar">
+    <button class="btn p" onclick="window.print()">Imprimir / PDF</button>
+    <button class="btn" id="save">Guardar</button>
+    <div class="sp"></div>
+    <button class="btn" id="nuevo">Nueva liquidación</button>
+  </div>
+  <div class="alerts" id="alerts"></div>
+  <div class="viewer"><div class="doc" id="doc"></div></div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+/* ======== DATOS DE SUPABASE (opcional; vacío = historial local) ======== */
+const SUPABASE_URL = "";
+const SUPABASE_KEY = "";
+/* Tabla: liquidaciones (id uuid, created_at timestamptz, trabajador text,
+   cedula text, empresa text, neto numeric, datos jsonb) + RLS con policy */
+/* ======================================================================= */
+
+/* ===================== MOTOR DE CÁLCULO ===================== */
+const T2 = n => { n=+n||0; return Math.trunc((n+(n<0?-1e-9:1e-9))*100)/100; };
+const R2 = n => { n=+n||0; return Math.round((n+(n<0?-1e-9:1e-9))*100)/100; };
+
+function diffYMD(a,b){
+  let y=b.getFullYear()-a.getFullYear(), m=b.getMonth()-a.getMonth(), d=b.getDate()-a.getDate();
+  if(d<0){ m--; d+=new Date(b.getFullYear(),b.getMonth(),0).getDate(); }
+  if(m<0){ y--; m+=12; }
+  return {y,m,d};
+}
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+
+/* Períodos vacacionales completos (año aniversario) */
+function periodos(ing, completos, base, tope){
+  const out=[], y0=ing.getFullYear();
+  for(let k=1;k<=completos;k++) out.push({label:`${y0+k-1}/${y0+k}`, dias:Math.min(base+(k-1),tope)});
+  return out;
+}
+/* Años calendario para utilidades */
+function aniosUtil(ing, eg){
+  const out=[];
+  for(let y=ing.getFullYear(); y<=eg.getFullYear(); y++){
+    const a = y===ing.getFullYear()? ing : new Date(y,0,1);
+    const b = y===eg.getFullYear()? addDays(eg,1) : new Date(y+1,0,1);
+    const t=diffYMD(a,b); out.push({year:y, meses:Math.min(t.y*12+t.m,12)});
+  }
+  return out;
+}
+
+/* p = parámetros; devuelve todo el cálculo en USD y Bs */
+function calc(p){
+  const r={ok:false};
+  if(!(p.salUSD>0) || !p.ing || !p.eg || !(p.eg>p.ing)) return r;
+  const tasa = p.tasa>0 ? p.tasa : 0;
+  const t=diffYMD(p.ing,p.eg), comp=t.y;
+  const mesBs = R2(p.salUSD*tasa);
+  const exacta = p.redondeo==="exacta";
+  const id = n=>n;
+  const d = exacta ? { usd:p.salUSD/30, bs:mesBs/30 } : { usd:T2(p.salUSD/30), bs:T2(mesBs/30) };
+  const ali = exacta ? id : (p.redondeo==="round" ? R2 : T2);
+  const conv = m => p.monManual==="bs" ? {usd: tasa? R2(m/tasa):0, bs:R2(m)} : {usd:R2(m), bs:R2(m*tasa)};
+  const div = p.divisor||360;
+
+  // Vacaciones / bono: días
+  const ultimo = comp>0 ? Math.min(p.base+(comp-1),p.tope) : p.base;
+  const curso  = Math.min(p.base+comp,p.tope);
+  const diasPerFrac = p.fracRule==="curso" ? curso : (comp>0?ultimo:p.base);
+  const fracAuto = R2(diasPerFrac/12*t.m);
+  const fracVac  = p.fracVac!=null ? p.fracVac : fracAuto;
+  const fracBono = p.fracBono!=null ? p.fracBono : fracAuto;
+  const vencV = p.periodos.filter(x=>x.incl).reduce((s,x)=>s+(+x.vac||0),0);
+  const vencB = p.periodos.filter(x=>x.incl).reduce((s,x)=>s+(+x.bono||0),0);
+
+  // Utilidades: días por año
+  const util = p.utiles.map(u=>({...u, dias:R2(p.dUtil/12*u.meses)}));
+  const utilCurso = util.length? util[util.length-1].dias : 0;
+
+  // Alícuotas e integral (por moneda)
+  const diasAliBV = p.aliBV==="ultimo" ? ultimo : fracBono;
+  const diasAliU  = p.aliU==="anual" ? p.dUtil : utilCurso;
+  const mk = cur => {
+    const sd=d[cur];
+    const aBV = ali(sd*diasAliBV/div);
+    const baseU = exacta ? sd+aBV : R2(sd+aBV);
+    const aU = ali(baseU*diasAliU/div);
+    return {sd,aBV,baseU,aU,integ: exacta ? baseU+aU : R2(sd+aBV+aU)};
+  };
+  const S={usd:mk("usd"), bs:mk("bs")};
+
+  // Prestaciones literal c
+  const frac6 = t.m>6 || (t.m===6 && t.d>0);
+  const diasC = comp*30 + (frac6?30:0) || (comp===0 && t.m>=3 ? 15 : 0);
+  const prestC = {usd:R2(diasC*S.usd.integ), bs:R2(diasC*S.bs.integ)};
+  const gar = conv(p.garantia||0);
+  const diasAdic = p.diasAdic==="si" && comp>=2 ? Math.min(2*(comp-1),30) : 0;
+  let prest=prestC, prestLit="Art. 142 lit. c)", usaGar=false;
+  if(p.metPrest==="mayor" && gar.usd>prestC.usd){ prest=gar; prestLit="Art. 142 lit. a) y b) · garantía depositada"; usaGar=true; }
+
+  const diasServ = t.y*360+t.m*30+t.d;
+  let inter={usd:0,bs:0}, interTxt="";
+  if(p.intManual>0){ inter=conv(p.intManual); interTxt="según cálculo"; }
+  else if(p.tasaInt>0){ const f=p.tasaInt/100*diasServ/360; inter={usd:R2(prest.usd*f),bs:R2(prest.bs*f)}; interTxt=`tasa ${p.tasaInt}% anual × ${diasServ}/360`; }
+
+  const lineas=[];
+  const L=(concepto,nota,dias,cur,ref)=>lineas.push({concepto,nota,dias,bd:{usd:cur?S.usd[cur]:null,bs:cur?S.bs[cur]:null},usd:ref.usd,bs:ref.bs});
+  const byDays=(dias,key)=>({usd:R2(dias*S.usd[key]),bs:R2(dias*S.bs[key])});
+
+  L("Prestaciones sociales", prestLit, usaGar?null:diasC, usaGar?null:"integ", prest);
+  if(diasAdic>0 && !usaGar) L("Días adicionales de antigüedad", `Art. 142 lit. b) · 2 días por año desde el segundo`, diasAdic, "integ", byDays(diasAdic,"integ"));
+  if(p.motivo==="DESPIDO INJUSTIFICADO") L("Indemnización por despido","Art. 92 LOTTT · monto equivalente a las prestaciones",null,null,prest);
+  if(inter.usd>0) L("Intereses sobre prestaciones","Art. 143 LOTTT · "+interTxt,null,null,inter);
+  if(vencV>0) L("Vacaciones vencidas", p.periodos.filter(x=>x.incl).map(x=>x.label).join(", ")+" · Art. 190", vencV, "sd", byDays(vencV,"sd"));
+  if(vencB>0) L("Bono vacacional vencido", "Art. 192 LOTTT", vencB, "sd", byDays(vencB,"sd"));
+  const perAct = `${p.ing.getFullYear()+comp}-${p.ing.getFullYear()+comp+1}`;
+  if(fracVac>0) L(`Vacaciones fraccionadas ${perAct}`, `${diasPerFrac} días ÷ 12 × ${t.m} meses · Art. 196`, fracVac, "sd", byDays(fracVac,"sd"));
+  if(fracBono>0) L(`Bono vacacional fraccionado ${perAct}`, `${diasPerFrac} días ÷ 12 × ${t.m} meses · Art. 196`, fracBono, "sd", byDays(fracBono,"sd"));
+  util.filter(u=>u.incl && u.dias>0).forEach(u=>{
+    L(`Bonificación de fin de año ${u.year}`, `${u.meses} meses · Art. 131 · base normal + alíc. BV`, u.dias, "baseU", byDays(u.dias,"baseU"));
+  });
+  if(p.diasCaidos>0) L("Salarios dejados de percibir","Salario normal diario", p.diasCaidos, "sd", byDays(p.diasCaidos,"sd"));
+  (p.otras||[]).forEach(o=>{ if(o.m>0) L(o.c||"Otra asignación","",null,null,conv(o.m)); });
+
+  const sum=(arr,k)=>R2(arr.reduce((s,x)=>s+x[k],0));
+  const asig={usd:sum(lineas,"usd"), bs:sum(lineas,"bs")};
+  const deds=(p.deds||[]).filter(x=>x.m>0).map(x=>({c:x.c||"Deducción",...conv(x.m)}));
+  const ded={usd:sum(deds,"usd"), bs:sum(deds,"bs")};
+  const neto={usd:R2(asig.usd-ded.usd), bs:R2(asig.bs-ded.bs)};
+
+  return Object.assign(r,{ok:true,t,comp,mesBs,d,S,diasAliBV,diasAliU,diasC,diasAdic,prestC,gar,usaGar,diasServ,
+    fracAuto,diasPerFrac,ultimo,curso,vencV,vencB,util,lineas,asig,deds,ded,neto,tasa});
+}
+
+/* ===================== INTERFAZ ===================== */
+const $=id=>document.getElementById(id);
+const num=id=>{ const v=$(id).value; return v===""?null:parseFloat(v); };
+const fmt=n=>(+n||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fd=d=>d?d.toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit',year:'numeric'}):"—";
+const pd=v=>{ if(!v) return null; const d=new Date(v+"T00:00:00"); return isNaN(d)?null:d; };
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let sb=null;
+if(SUPABASE_URL && SUPABASE_KEY && window.supabase){ try{ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){} }
+if(sb){ $("cloudDot").classList.add("on"); $("cloudTxt").textContent="Historial en la nube"; }
+
+let logo=null, perState={}, utState={};
+
+$("logo").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f){logo=null;update();return;} const r=new FileReader(); r.onload=()=>{logo=r.result;update();}; r.readAsDataURL(f); });
+
+/* --- tablas de períodos y utilidades (se reconstruyen solo al cambiar fechas/base) --- */
+function rebuildTables(){
+  const ing=pd($("ingreso").value), eg=pd($("egreso").value);
+  const pb=$("perBody"), ub=$("utBody");
+  if(!ing||!eg||eg<=ing){ pb.innerHTML=`<tr><td colspan="4" style="color:var(--mute)">Indica las fechas.</td></tr>`; ub.innerHTML=""; update(); return; }
+  const comp=diffYMD(ing,eg).y, base=+$("baseVac").value||15, tope=+$("topeVac").value||30;
+  pb.innerHTML = periodos(ing,comp,base,tope).map(p=>{
+    const s=perState[p.label]||{vac:p.dias,bono:p.dias,incl:true,auto:p.dias};
+    if(s.auto!==p.dias){ s.vac=p.dias; s.bono=p.dias; s.auto=p.dias; }
+    perState[p.label]=s;
+    return `<tr data-l="${p.label}" class="${s.incl?"":"off"}"><td>${p.label}</td>
+      <td><input type="number" step="0.01" data-k="vac" value="${s.vac}"></td>
+      <td><input type="number" step="0.01" data-k="bono" value="${s.bono}"></td>
+      <td class="c"><input type="checkbox" data-k="incl" ${s.incl?"checked":""}></td></tr>`;
+  }).join("") || `<tr><td colspan="4" style="color:var(--mute)">Sin períodos completos.</td></tr>`;
+  pb.querySelectorAll("tr[data-l]").forEach(tr=>{
+    const s=perState[tr.dataset.l];
+    tr.querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{
+      if(i.dataset.k==="incl"){ s.incl=i.checked; tr.classList.toggle("off",!i.checked); } else s[i.dataset.k]=parseFloat(i.value)||0;
+      update();
+    }));
+  });
+  const anios=aniosUtil(ing,eg), last=eg.getFullYear();
+  ub.innerHTML = anios.map(u=>{
+    const s=utState[u.year]||{incl:u.year>=last-1, meses:u.meses, auto:u.meses};
+    if(s.auto!==u.meses){ s.meses=u.meses; s.auto=u.meses; }
+    utState[u.year]=s;
+    return `<tr data-y="${u.year}" class="${s.incl?"":"off"}"><td>${u.year}</td>
+      <td><input type="number" step="1" min="0" max="12" data-k="meses" value="${s.meses}"></td>
+      <td data-d></td>
+      <td class="c"><input type="checkbox" data-k="incl" ${s.incl?"checked":""}></td></tr>`;
+  }).join("");
+  ub.querySelectorAll("tr[data-y]").forEach(tr=>{
+    const s=utState[tr.dataset.y];
+    tr.querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{
+      if(i.dataset.k==="incl"){ s.incl=i.checked; tr.classList.toggle("off",!i.checked); } else s.meses=Math.max(0,Math.min(12,parseFloat(i.value)||0));
+      update();
+    }));
+  });
+  update();
+}
+
+/* --- filas dinámicas --- */
+function addRow(box,c="",m=""){
+  const d=document.createElement("div"); d.className="row";
+  d.innerHTML=`<input type="text" placeholder="Concepto" value="${esc(c)}"><input type="number" step="0.01" placeholder="USD" value="${m}"><button class="x" title="Quitar">×</button>`;
+  d.querySelectorAll("input").forEach(i=>i.addEventListener("input",update));
+  d.querySelector(".x").addEventListener("click",()=>{d.remove();update();});
+  $(box).appendChild(d);
+}
+const readRows=box=>[...$(box).querySelectorAll(".row")].map(r=>({c:r.children[0].value.trim(), m:parseFloat(r.children[1].value)||0}));
+$("addOtra").onclick=()=>{addRow("otras");};
+$("addDed").onclick=()=>{addRow("deds");};
+
+function params(){
+  const ing=pd($("ingreso").value), eg=pd($("egreso").value);
+  const comp = ing&&eg&&eg>ing ? diffYMD(ing,eg).y : 0;
+  const base=+$("baseVac").value||15, tope=+$("topeVac").value||30;
+  const pers = ing&&eg&&eg>ing ? periodos(ing,comp,base,tope).map(p=>{ const s=perState[p.label]||{vac:p.dias,bono:p.dias,incl:true}; return {label:p.label,vac:s.vac,bono:s.bono,incl:s.incl}; }) : [];
+  const uts = ing&&eg&&eg>ing ? aniosUtil(ing,eg).map(u=>{ const s=utState[u.year]||{incl:true,meses:u.meses}; return {year:u.year,meses:s.meses,incl:s.incl}; }) : [];
+  return {
+    salUSD:num("salUSD"), tasa:num("tasa"), ing, eg, base, tope,
+    fracRule:$("fracRule").value, fracVac:num("fracVac"), fracBono:num("fracBono"),
+    periodos:pers, utiles:uts, dUtil:+$("dUtil").value||0,
+    aliBV:$("aliBV").value, aliU:$("aliU").value, divisor:+$("divisor").value, redondeo:$("redondeo").value,
+    diasAdic:$("diasAdic").value, monManual:$("monManual").value, diasCaidos:num("diasCaidos")||0,
+    metPrest:$("metPrest").value, garantia:num("garantia")||0, motivo:$("motivo").value,
+    tasaInt:num("tasaInt")||0, intManual:num("intManual")||0, otras:readRows("otras"), deds:readRows("deds")
+  };
+}
+
+function update(){
+  const p=params(), c=calc(p);
+  $("garWrap").style.display = $("metPrest").value==="mayor" ? "" : "none";
+
+  // datos rápidos
+  $("fx_mesBs").textContent = c.ok? fmt(c.mesBs):"—";
+  $("fx_dUSD").textContent  = c.ok? fmt(c.d.usd):"—";
+  $("fx_dBs").textContent   = c.ok? fmt(c.d.bs):"—";
+  $("fx_t").textContent     = c.ok? `${c.t.y}a ${c.t.m}m ${c.t.d}d`:"—";
+  $("fx_per").textContent   = c.ok? c.comp:"—";
+  $("fx_m").textContent     = c.ok? c.t.m:"—";
+  $("perTotV").textContent  = c.ok? fmt(c.vencV):"0";
+  $("perTotB").textContent  = c.ok? fmt(c.vencB):"0";
+  $("fracVac").placeholder  = c.ok? "auto · "+fmt(c.fracAuto):"auto";
+  $("fracBono").placeholder = c.ok? "auto · "+fmt(c.fracAuto):"auto";
+  $("fracNote").textContent = c.ok? `Fracción = ${c.diasPerFrac} días ÷ 12 × ${c.t.m} meses = ${fmt(c.fracAuto)} días.`:"";
+  if(c.ok) document.querySelectorAll("#utBody tr[data-y]").forEach(tr=>{ const u=c.util.find(x=>String(x.year)===tr.dataset.y); tr.querySelector("[data-d]").textContent=u?fmt(u.dias):""; });
+
+  // alertas
+  const al=[];
+  if(c.ok && !(p.tasa>0)) al.push("Falta la tasa BCV: los montos en bolívares quedarán en cero.");
+  if(c.ok && c.diasAliU===0) al.push("La alícuota de utilidades da cero porque el año en curso no tiene meses completos. Si corresponde, cámbiala a «Días anuales de utilidades» en el paso 5.");
+  if(c.ok && p.metPrest==="mayor" && !(p.garantia>0)) al.push("Para comparar con el literal d) carga la garantía acumulada del estado de cuenta.");
+  $("alerts").innerHTML=al.map(a=>`<div class="alert">${a}</div>`).join("");
+
+  renderDoc(p,c);
+}
+
+function renderDoc(p,c){
+  const emp=esc($("empresa").value.trim()||"ENTIDAD DE TRABAJO"), rif=esc($("rif").value.trim());
+  const trab=esc(($("trab").value.trim()||"NOMBRE DEL TRABAJADOR").toUpperCase());
+  const ced=esc($("cedula").value.trim()||"—"), cargo=esc($("cargo").value.trim()||"—");
+  const ft=pd($("fechaTasa").value);
+  const head=`<div class="hd"><div><h1>${emp}</h1>${rif?`<div class="rif">RIF ${rif}</div>`:""}</div>${logo?`<img src="${logo}" alt="">`:""}</div>
+    <h3 class="tt">Liquidación de prestaciones sociales y demás beneficios laborales</h3>`;
+  if(!c.ok){ $("doc").innerHTML=head+`<p class="sans" style="color:#888;font-size:12px">Completa salario y fechas para generar la planilla.</p>`; return; }
+
+  const tiempo=`${c.t.y} año${c.t.y!==1?"s":""}, ${c.t.m} mes${c.t.m!==1?"es":""} y ${c.t.d} día${c.t.d!==1?"s":""}`;
+  const bdCell=l=> l.bd.usd!=null ? `${fmt(l.bd.usd)}<small>Bs. ${fmt(l.bd.bs)}</small>` : "—";
+  const rows=c.lineas.map(l=>`<tr><td class="l">${esc(l.concepto)}${l.nota?`<small>${esc(l.nota)}</small>`:""}</td>
+      <td>${l.dias!=null?fmt(l.dias):"—"}</td><td>${bdCell(l)}</td><td>${fmt(l.usd)}</td><td>${fmt(l.bs)}</td></tr>`).join("");
+  const dedRows=c.deds.length? c.deds.map(x=>`<tr><td class="l">${esc(x.c)}</td><td></td><td></td><td>(${fmt(x.usd)})</td><td>(${fmt(x.bs)})</td></tr>`).join("")
+      : `<tr><td class="l" colspan="5" style="color:#999">Sin deducciones</td></tr>`;
+
+  $("doc").innerHTML = head + `
+  <table class="meta sans">
+    <tr><td class="k">Trabajador</td><td class="v">${trab}</td><td class="k">Cédula</td><td class="v">${ced}</td></tr>
+    <tr><td class="k">Cargo</td><td class="v">${cargo}</td><td class="k">Motivo de egreso</td><td class="v">${esc(p.motivo)}</td></tr>
+    <tr><td class="k">Fecha de ingreso</td><td class="v">${fd(p.ing)}</td><td class="k">Fecha de egreso</td><td class="v">${fd(p.eg)}</td></tr>
+    <tr><td class="k">Tiempo de servicio</td><td class="v">${tiempo}</td><td class="k">Tasa BCV</td><td class="v">Bs. ${fmt(c.tasa)}${ft?` (${fd(ft)})`:""}</td></tr>
+    <tr><td class="k">Salario mensual</td><td class="v">$ ${fmt(p.salUSD)} · Bs. ${fmt(c.mesBs)}</td><td class="k">Salario diario</td><td class="v">$ ${fmt(c.d.usd)} · Bs. ${fmt(c.d.bs)}</td></tr>
+  </table>
+
+  <div class="integ sans">
+    <b>Salario integral diario</b> = salario normal + alícuota bono vacacional (${fmt(c.diasAliBV)} d ÷ ${p.divisor}) + alícuota utilidades (${fmt(c.diasAliU)} d ÷ ${p.divisor} sobre normal + alíc. BV)<br>
+    USD: ${fmt(c.S.usd.sd)} + ${fmt(c.S.usd.aBV)} + ${fmt(c.S.usd.aU)} = <b>${fmt(c.S.usd.integ)}</b> &nbsp;·&nbsp;
+    Bs.: ${fmt(c.S.bs.sd)} + ${fmt(c.S.bs.aBV)} + ${fmt(c.S.bs.aU)} = <b>${fmt(c.S.bs.integ)}</b>
+  </div>
+
+  <div class="sec sans">Asignaciones</div>
+  <table class="lines sans">
+    <thead><tr><th class="l">Concepto</th><th>Días</th><th>Base diaria $</th><th>Monto $</th><th>Monto Bs.</th></tr></thead>
+    <tbody>${rows}<tr class="tot"><td class="l">Total asignaciones</td><td></td><td></td><td>${fmt(c.asig.usd)}</td><td>${fmt(c.asig.bs)}</td></tr></tbody>
+  </table>
+
+  <div class="sec sans">Deducciones</div>
+  <table class="lines sans">
+    <thead><tr><th class="l">Concepto</th><th></th><th></th><th>Monto $</th><th>Monto Bs.</th></tr></thead>
+    <tbody>${dedRows}${c.deds.length?`<tr class="tot"><td class="l">Total deducciones</td><td></td><td></td><td>(${fmt(c.ded.usd)})</td><td>(${fmt(c.ded.bs)})</td></tr>`:""}</tbody>
+  </table>
+
+  <div class="net sans">
+    <div><span>Total asignaciones</span><b>$ ${fmt(c.asig.usd)} · Bs. ${fmt(c.asig.bs)}</b></div>
+    <div><span>Total deducciones</span><b>($ ${fmt(c.ded.usd)}) · (Bs. ${fmt(c.ded.bs)})</b></div>
+    <div class="big"><span>Total a pagar</span><span>$ ${fmt(c.neto.usd)} · Bs. ${fmt(c.neto.bs)}</span></div>
+  </div>
+
+  <div class="fin">
+    <p>Yo, <b>${trab}</b>, venezolano(a), mayor de edad, titular de la cédula de identidad Nº <b>${ced}</b>, declaro que recibo a mi entera y cabal satisfacción la cantidad de <b>Bs. ${fmt(c.neto.bs)}</b>, equivalente a <b>USD ${fmt(c.neto.usd)}</b> calculados a la tasa publicada por el Banco Central de Venezuela${ft?` en fecha ${fd(ft)}`:""} (Bs. ${fmt(c.tasa)} por dólar), por concepto de prestaciones sociales y demás beneficios laborales derivados de la terminación de la relación de trabajo, conforme a la Ley Orgánica del Trabajo, los Trabajadores y las Trabajadoras.</p>
+    <p>Declaro asimismo que <b>${emp}</b>${rif?` (RIF ${rif})`:""} nada me adeuda por los conceptos antes señalados, por cuanto los recibí íntegramente según se evidencia en la presente planilla, que suscribo en señal de conformidad.</p>
+  </div>
+  <div class="sig sans"><div><b>${trab}</b><span>C.I. ${ced} · Recibí conforme</span></div><div><b>${emp}</b><span>Por la entidad de trabajo</span></div></div>`;
+}
+
+/* --- historial --- */
+const HKEY="liq_ttpn_v2";
+const FIELDS=["empresa","rif","trab","cedula","cargo","motivo","salUSD","tasa","ingreso","egreso","fechaTasa","baseVac","topeVac","fracRule","fracVac","fracBono","dUtil","aliBV","aliU","divisor","redondeo","diasAdic","monManual","diasCaidos","metPrest","garantia","tasaInt","intManual"];
+function snapshot(){ const f={}; FIELDS.forEach(k=>f[k]=$(k).value); return {f,perState,utState,otras:readRows("otras"),deds:readRows("deds"),logo}; }
+function restore(s){
+  FIELDS.forEach(k=>{ if(s.f && k in s.f) $(k).value=s.f[k]; });
+  perState=s.perState||{}; utState=s.utState||{}; logo=s.logo||null;
+  $("otras").innerHTML=""; (s.otras||[]).forEach(o=>addRow("otras",o.c,o.m||""));
+  $("deds").innerHTML="";  (s.deds||[]).forEach(o=>addRow("deds",o.c,o.m||""));
+  rebuildTables();
+}
+const getL=()=>{ try{return JSON.parse(localStorage.getItem(HKEY))||[];}catch(e){return [];} };
+const setL=a=>localStorage.setItem(HKEY,JSON.stringify(a));
+async function loadH(){
+  if(sb){ const {data,error}=await sb.from("liquidaciones").select("*").order("created_at",{ascending:false}); if(!error) return data.map(r=>({id:r.id,fecha:r.created_at,trabajador:r.trabajador,cedula:r.cedula,neto:r.neto,snap:r.datos})); }
+  return getL();
+}
+async function renderH(){
+  const h=await loadH(), box=$("hist");
+  if(!h.length){ box.innerHTML=`<div class="empty">Aún no hay liquidaciones guardadas.</div>`; return; }
+  box.innerHTML=h.map(x=>`<div class="it" data-id="${x.id}"><div class="who"><b>${esc(x.trabajador)}</b><span>${esc(x.cedula||"")} · ${new Date(x.fecha).toLocaleDateString('es-VE')}</span></div><div class="amt">$ ${fmt(x.neto)}</div><button class="ld">Abrir</button><button class="del">Borrar</button></div>`).join("");
+  box.querySelectorAll(".it").forEach(el=>{
+    const id=el.dataset.id, item=h.find(x=>String(x.id)===id);
+    el.querySelector(".ld").onclick=()=>{ restore(item.snap); window.scrollTo(0,0); };
+    el.querySelector(".del").onclick=async()=>{ if(!confirm("¿Borrar esta liquidación?")) return;
+      if(sb){ await sb.from("liquidaciones").delete().eq("id",id); } else setL(getL().filter(x=>String(x.id)!==id));
+      renderH(); };
+  });
+}
+$("save").onclick=async()=>{
+  const c=calc(params()), trab=$("trab").value.trim();
+  if(!c.ok||!trab){ alert("Completa trabajador, salario y fechas antes de guardar."); return; }
+  const reg={trabajador:trab.toUpperCase(),cedula:$("cedula").value.trim(),empresa:$("empresa").value.trim(),neto:c.neto.usd,datos:snapshot()};
+  if(sb){ const {error}=await sb.from("liquidaciones").insert(reg); if(error){alert("No se pudo guardar: "+error.message);return;} }
+  else { const a=getL(); a.unshift({id:String(Date.now()),fecha:new Date().toISOString(),...reg,snap:reg.datos}); setL(a); }
+  const b=$("save"); b.textContent="Guardado"; setTimeout(()=>b.textContent="Guardar",1400); renderH();
+};
+$("nuevo").onclick=()=>{ if(!confirm("¿Empezar una liquidación nueva? El historial se conserva.")) return; location.reload(); };
+
+/* --- eventos --- */
+["ingreso","egreso","baseVac","topeVac"].forEach(id=>$(id).addEventListener("input",rebuildTables));
+document.querySelectorAll(".col-form input:not([type=file]), .col-form select").forEach(el=>{
+  if(!["ingreso","egreso","baseVac","topeVac"].includes(el.id) && el.closest("#perBody,#utBody,#otras,#deds")===null) el.addEventListener("input",update);
+});
+rebuildTables(); renderH();
+</script>
+</body>
+</html>
